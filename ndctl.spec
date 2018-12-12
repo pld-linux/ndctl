@@ -5,14 +5,16 @@
 Summary:	Manage "libnvdimm" subsystem devices (Non-volatile Memory)
 Summary(pl.UTF-8):	Zarządzanie urządzeniami podsystemu "libnvdimm" (pamięci nieulotnej)
 Name:		ndctl
-Version:	60.1
-Release:	2
+Version:	63
+Release:	1
 License:	LGPL v2.1+ (libraries), GPL v2+ with CC0 and MIT parts (utilities)
 Group:		Applications/System
 #Source0Download: https://github.com/pmem/ndctl/releases
 Source0:	https://github.com/pmem/ndctl/archive/v%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	b67e154bf6cf6e34ac8c43bbae85952e
+# Source0-md5:	a4e2fa6f776ff6c1ebf3ba9dcb660f8f
+Patch0:		%{name}-bashcompdir.patch
 URL:		http://pmem.io/ndctl/
+# TODO: asciidoctor
 BuildRequires:	asciidoc
 BuildRequires:	autoconf >= 2.60
 BuildRequires:	automake >= 1:1.11
@@ -158,6 +160,7 @@ Statyczna biblioteka daxctl.
 
 %prep
 %setup -q
+%patch0 -p1
 
 echo '%{version}' >version
 
@@ -169,9 +172,10 @@ echo '%{version}' >version
 %{__autoheader}
 %{__automake}
 %configure \
+	--disable-asciidoctor \
 	--disable-silent-rules \
 	%{?with_static_libs:--enable-static} \
-	--with-bash-completion-dir=%{bash_compdir}
+	--with-bash=%{bash_compdir}
 %{__make}
 
 %install
@@ -196,6 +200,9 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc README.md licenses/{BSD-MIT,CC0}
 %attr(755,root,root) %{_bindir}/ndctl
+%dir %{_sysconfdir}/ndctl
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/ndctl/monitor.conf
+%{systemdunitdir}/ndctl-monitor.service
 %{_mandir}/man1/ndctl.1*
 %{_mandir}/man1/ndctl-*.1*
 
