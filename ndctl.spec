@@ -5,13 +5,13 @@
 Summary:	Manage "libnvdimm" subsystem devices (Non-volatile Memory)
 Summary(pl.UTF-8):	Zarządzanie urządzeniami podsystemu "libnvdimm" (pamięci nieulotnej)
 Name:		ndctl
-Version:	63
+Version:	64.1
 Release:	1
 License:	LGPL v2.1+ (libraries), GPL v2+ with CC0 and MIT parts (utilities)
 Group:		Applications/System
 #Source0Download: https://github.com/pmem/ndctl/releases
 Source0:	https://github.com/pmem/ndctl/archive/v%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	a4e2fa6f776ff6c1ebf3ba9dcb660f8f
+# Source0-md5:	317fb81e8f5da1d0b1d030821df9efa7
 Patch0:		%{name}-bashcompdir.patch
 URL:		http://pmem.io/ndctl/
 # TODO: asciidoctor
@@ -19,11 +19,13 @@ BuildRequires:	asciidoc
 BuildRequires:	autoconf >= 2.60
 BuildRequires:	automake >= 1:1.11
 BuildRequires:	json-c-devel
+BuildRequires:	keyutils-devel
 BuildRequires:	kmod-devel
 BuildRequires:	libuuid-devel
 BuildRequires:	libtool >= 2:2
 BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 1.673
+BuildRequires:	systemd-devel
 BuildRequires:	udev-devel
 BuildRequires:	xmlto
 Requires:	%{name}-libs = %{version}-%{release}
@@ -202,6 +204,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/ndctl
 %dir %{_sysconfdir}/ndctl
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/ndctl/monitor.conf
+%dir %{_sysconfdir}/ndctl/keys
+%config(noreplace) %verify(not md5 mtime size) /etc/modprobe.d/nvdimm-security.conf
 %{systemdunitdir}/ndctl-monitor.service
 %{_mandir}/man1/ndctl.1*
 %{_mandir}/man1/ndctl-*.1*
@@ -231,6 +235,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc licenses/{BSD-MIT,CC0}
 %attr(755,root,root) %{_bindir}/daxctl
+%{_datadir}/daxctl
 %{_mandir}/man1/daxctl.1*
 %{_mandir}/man1/daxctl-*.1*
 
