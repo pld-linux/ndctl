@@ -5,13 +5,13 @@
 Summary:	Manage "libnvdimm" subsystem devices (Non-volatile Memory)
 Summary(pl.UTF-8):	Zarządzanie urządzeniami podsystemu "libnvdimm" (pamięci nieulotnej)
 Name:		ndctl
-Version:	64.1
+Version:	65
 Release:	1
 License:	LGPL v2.1+ (libraries), GPL v2+ with CC0 and MIT parts (utilities)
 Group:		Applications/System
 #Source0Download: https://github.com/pmem/ndctl/releases
 Source0:	https://github.com/pmem/ndctl/archive/v%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	317fb81e8f5da1d0b1d030821df9efa7
+# Source0-md5:	794c442ed391f3d2c59c4c58edb83775
 Patch0:		%{name}-bashcompdir.patch
 URL:		http://pmem.io/ndctl/
 # TODO: asciidoctor
