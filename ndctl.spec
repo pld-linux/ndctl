@@ -5,15 +5,15 @@
 Summary:	Manage "libnvdimm" subsystem devices (Non-volatile Memory)
 Summary(pl.UTF-8):	Zarządzanie urządzeniami podsystemu "libnvdimm" (pamięci nieulotnej)
 Name:		ndctl
-Version:	68
-Release:	2
+Version:	71.1
+Release:	1
 License:	LGPL v2.1+ (libraries), GPL v2+ with CC0 and MIT parts (utilities)
 Group:		Applications/System
 #Source0Download: https://github.com/pmem/ndctl/releases
 Source0:	https://github.com/pmem/ndctl/archive/v%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	ec2d723d7ff4e59bb947f5358616884a
+# Source0-md5:	473b701d5250392ac570ed271cacd778
 Patch0:		%{name}-bashcompdir.patch
-URL:		http://pmem.io/ndctl/
+URL:		https://pmem.io/ndctl/
 # TODO: asciidoctor
 BuildRequires:	asciidoc
 BuildRequires:	autoconf >= 2.60
@@ -22,8 +22,8 @@ BuildRequires:	glibc-devel >= 6:2.28
 BuildRequires:	json-c-devel
 BuildRequires:	keyutils-devel
 BuildRequires:	kmod-devel
-BuildRequires:	libuuid-devel
 BuildRequires:	libtool >= 2:2
+BuildRequires:	libuuid-devel
 BuildRequires:	linux-libc-headers >= 7:4.15
 BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 1.673
@@ -202,7 +202,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc README.md licenses/{BSD-MIT,CC0}
 %attr(755,root,root) %{_bindir}/ndctl
 %dir %{_sysconfdir}/ndctl
 %config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/ndctl/monitor.conf
@@ -235,7 +234,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n daxctl
 %defattr(644,root,root,755)
-%doc licenses/{BSD-MIT,CC0}
 %attr(755,root,root) %{_bindir}/daxctl
 %{_datadir}/daxctl
 %{_mandir}/man1/daxctl.1*
@@ -243,6 +241,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n daxctl-libs
 %defattr(644,root,root,755)
+%doc README.md LICENSES/other/{CC0-1.0,MIT}
 %attr(755,root,root) %{_libdir}/libdaxctl.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libdaxctl.so.1
 
