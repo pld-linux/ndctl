@@ -5,13 +5,13 @@
 Summary:	Manage "libnvdimm" subsystem devices (Non-volatile Memory)
 Summary(pl.UTF-8):	Zarządzanie urządzeniami podsystemu "libnvdimm" (pamięci nieulotnej)
 Name:		ndctl
-Version:	71.1
+Version:	72.1
 Release:	1
 License:	LGPL v2.1+ (libraries), GPL v2+ with CC0 and MIT parts (utilities)
 Group:		Applications/System
 #Source0Download: https://github.com/pmem/ndctl/releases
 Source0:	https://github.com/pmem/ndctl/archive/v%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	473b701d5250392ac570ed271cacd778
+# Source0-md5:	faa0fa043dbd922d13ecb6f31b00e3b2
 Patch0:		%{name}-bashcompdir.patch
 URL:		https://pmem.io/ndctl/
 # TODO: asciidoctor
@@ -19,6 +19,7 @@ BuildRequires:	asciidoc
 BuildRequires:	autoconf >= 2.60
 BuildRequires:	automake >= 1:1.11
 BuildRequires:	glibc-devel >= 6:2.28
+BuildRequires:	iniparser-devel
 BuildRequires:	json-c-devel
 BuildRequires:	keyutils-devel
 BuildRequires:	kmod-devel
@@ -100,6 +101,73 @@ Static ndctl library.
 %description static -l pl.UTF-8
 Statyczna biblioteka ndctl.
 
+%package -n cxl
+Summary:	Manage CXL devices
+Summary(pl.UTF-8):	Zarządzanie urządzeniami CXL
+License:	GPL v2+ with CC0 and MIT parts (utilities)
+Group:		Applications/System
+Requires:	cxl-libs = %{version}-%{release}
+
+%description -n cxl
+The cxl utility provices enumeration and provisioning commands for
+CXL platforms.
+
+%description -n cxl -l pl.UTF-8
+Narzędzie cxl udostępnia polecenia do numerowania i zaopatrywania
+dla platform CXL.
+
+%package -n bash-completion-cxl
+Summary:	Bash completion for cxl command
+Summary(pl.UTF-8):	Bashowe uzupełnianie parametrów polecenia cxl
+Group:		Applications/Shells
+Requires:	bash-completion >= 2.0
+Requires:	cxl = %{version}-%{release}
+
+%description -n bash-completion-cxl
+Bash completion for cxl command.
+
+%description -n bash-completion-cxl -l pl.UTF-8
+Bashowe uzupełnianie parametrów polecenia cxl.
+
+%package -n cxl-libs
+Summary:	Management library for CXL devices
+Summary(pl.UTF-8):	Biblioteka zarządzająca urządzeniami CXL
+License:	LGPL v2.1+
+Group:		Libraries
+
+%description -n cxl-libs
+Management library for CXL devices.
+
+%description -n cxl-libs -l pl.UTF-8
+Biblioteka zarządzająca urządzeniami CXL.
+
+%package -n cxl-devel
+Summary:	Header fiels for cxl library
+Summary(pl.UTF-8):	Pliki nagłówkowe biblioteki cxl
+License:	LGPL v2.1+
+Group:		Development/Libraries
+Requires:	cxl-libs = %{version}-%{release}
+Requires:	libuuid-devel
+
+%description -n cxl-devel
+Header fiels for cxl library.
+
+%description -n cxl-devel -l pl.UTF-8
+Pliki nagłówkowe biblioteki cxl.
+
+%package -n cxl-static
+Summary:	Static cxl library
+Summary(pl.UTF-8):	Statyczna biblioteka cxl
+License:	LGPL v2.1+
+Group:		Development/Libraries
+Requires:	%{name}-devel = %{version}-%{release}
+
+%description -n cxl-static
+Static cxl library.
+
+%description -n cxl-static -l pl.UTF-8
+Statyczna biblioteka cxl.
+
 %package -n daxctl
 Summary:	Manage Device-DAX instances
 Summary(pl.UTF-8):	Zarządzanie instancjami Device-DAX
@@ -118,6 +186,19 @@ Narzędzie daxctl udostępnia polecenia do numerowania i zaopatrywania
 funkcji Device-DAX jądra Linuksa. Funkcja ta włącza odwzorowanie DAX
 pamięci o zróżnicowanej wydajności/funkcjonalności bez potrzeby
 systemu plików.
+
+%package -n bash-completion-daxctl
+Summary:	Bash completion for daxctl command
+Summary(pl.UTF-8):	Bashowe uzupełnianie parametrów polecenia daxctl
+Group:		Applications/Shells
+Requires:	bash-completion >= 2.0
+Requires:	daxctl = %{version}-%{release}
+
+%description -n bash-completion-daxctl
+Bash completion for daxctl command.
+
+%description -n bash-completion-daxctl -l pl.UTF-8
+Bashowe uzupełnianie parametrów polecenia daxctl.
 
 %package -n daxctl-libs
 Summary:	Management library for "Device DAX" devices
@@ -179,7 +260,8 @@ echo '%{version}' >version
 	--disable-asciidoctor \
 	--disable-silent-rules \
 	%{?with_static_libs:--enable-static} \
-	--with-bash=%{bash_compdir}
+	--with-bash=%{bash_compdir} \
+	--with-udevrulesdir=/lib/udev/rules.d
 %{__make}
 
 %install
@@ -197,6 +279,9 @@ rm -rf $RPM_BUILD_ROOT
 %post	libs -p /sbin/ldconfig
 %postun	libs -p /sbin/ldconfig
 
+%post	-n cxl-libs -p /sbin/ldconfig
+%postun	-n cxl-libs -p /sbin/ldconfig
+
 %post	-n daxctl-libs -p /sbin/ldconfig
 %postun	-n daxctl-libs -p /sbin/ldconfig
 
@@ -204,8 +289,10 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/ndctl
 %dir %{_sysconfdir}/ndctl
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/ndctl/monitor.conf
 %dir %{_sysconfdir}/ndctl/keys
+%dir %{_sysconfdir}/ndctl.conf.d
+%config(noreplace) %verify(not md5 mtime size)  %{_sysconfdir}/ndctl.conf.d/monitor.conf
+%config(noreplace) %verify(not md5 mtime size)  %{_sysconfdir}/ndctl.conf.d/ndctl.conf
 %config(noreplace) %verify(not md5 mtime size) /etc/modprobe.d/nvdimm-security.conf
 %{systemdunitdir}/ndctl-monitor.service
 %{_mandir}/man1/ndctl.1*
@@ -232,12 +319,48 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/libndctl.a
 %endif
 
+%files -n cxl
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_bindir}/cxl
+%{_mandir}/man1/cxl.1*
+%{_mandir}/man1/cxl-*.1*
+
+%files -n bash-completion-cxl
+%defattr(644,root,root,755)
+%{bash_compdir}/cxl
+
+%files -n cxl-libs
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/libcxl.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libcxl.so.1
+
+%files -n cxl-devel
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/libcxl.so
+%{_includedir}/cxl
+%{_pkgconfigdir}/libcxl.pc
+%{_mandir}/man3/cxl_new.3*
+%{_mandir}/man3/libcxl.3*
+
+%if %{with static_libs}
+%files -n cxl-static
+%defattr(644,root,root,755)
+%{_libdir}/libcxl.a
+%endif
+
 %files -n daxctl
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/daxctl
+%dir %{_sysconfdir}/daxctl.conf.d
 %{_datadir}/daxctl
+/lib/udev/rules.d/90-daxctl-device.rules
+%{systemdunitdir}/daxdev-reconfigure@.service
 %{_mandir}/man1/daxctl.1*
 %{_mandir}/man1/daxctl-*.1*
+
+%files -n bash-completion-daxctl
+%defattr(644,root,root,755)
+%{bash_compdir}/daxctl
 
 %files -n daxctl-libs
 %defattr(644,root,root,755)
