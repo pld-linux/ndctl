@@ -1,6 +1,7 @@
 #
 # Conditional build:
 %bcond_without	static_libs	# static libraries
+%bcond_without	systemd		# systemd
 #
 Summary:	Manage "libnvdimm" subsystem devices (Non-volatile Memory)
 Summary(pl.UTF-8):	Zarządzanie urządzeniami podsystemu "libnvdimm" (pamięci nieulotnej)
@@ -28,7 +29,7 @@ BuildRequires:	libuuid-devel
 BuildRequires:	linux-libc-headers >= 7:4.15
 BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 1.673
-BuildRequires:	systemd-devel
+%{?with_systemd:BuildRequires:	systemd-devel}
 BuildRequires:	udev-devel
 BuildRequires:	xmlto
 Requires:	%{name}-libs = %{version}-%{release}
@@ -261,7 +262,8 @@ echo '%{version}' >version
 	--disable-silent-rules \
 	%{?with_static_libs:--enable-static} \
 	--with-bash=%{bash_compdir} \
-	--with-udevrulesdir=/lib/udev/rules.d
+	--with-udevrulesdir=/lib/udev/rules.d \
+	%{!?with_systemd:--without-systemd}
 %{__make}
 
 %install
@@ -294,7 +296,9 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %verify(not md5 mtime size)  %{_sysconfdir}/ndctl.conf.d/monitor.conf
 %config(noreplace) %verify(not md5 mtime size)  %{_sysconfdir}/ndctl.conf.d/ndctl.conf
 %config(noreplace) %verify(not md5 mtime size) /etc/modprobe.d/nvdimm-security.conf
+%if %{with systemd}
 %{systemdunitdir}/ndctl-monitor.service
+%endif
 %{_mandir}/man1/ndctl.1*
 %{_mandir}/man1/ndctl-*.1*
 
@@ -354,7 +358,9 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_sysconfdir}/daxctl.conf.d
 %{_datadir}/daxctl
 /lib/udev/rules.d/90-daxctl-device.rules
+%if %{with systemd}
 %{systemdunitdir}/daxdev-reconfigure@.service
+%endif
 %{_mandir}/man1/daxctl.1*
 %{_mandir}/man1/daxctl-*.1*
 
