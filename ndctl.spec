@@ -6,27 +6,25 @@
 Summary:	Manage "libnvdimm" subsystem devices (Non-volatile Memory)
 Summary(pl.UTF-8):	Zarządzanie urządzeniami podsystemu "libnvdimm" (pamięci nieulotnej)
 Name:		ndctl
-Version:	72.1
+Version:	73
 Release:	1
 License:	LGPL v2.1+ (libraries), GPL v2+ with CC0 and MIT parts (utilities)
 Group:		Applications/System
 #Source0Download: https://github.com/pmem/ndctl/releases
 Source0:	https://github.com/pmem/ndctl/archive/v%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	faa0fa043dbd922d13ecb6f31b00e3b2
-Patch0:		%{name}-bashcompdir.patch
+# Source0-md5:	0c9f6f8c0bcc29ed7fcae3b1df7f61d6
 URL:		https://pmem.io/ndctl/
-# TODO: asciidoctor
+# or asciidoctor instead of asciidoc+xmlto
 BuildRequires:	asciidoc
-BuildRequires:	autoconf >= 2.60
-BuildRequires:	automake >= 1:1.11
 BuildRequires:	glibc-devel >= 6:2.28
 BuildRequires:	iniparser-devel
 BuildRequires:	json-c-devel
 BuildRequires:	keyutils-devel
 BuildRequires:	kmod-devel
-BuildRequires:	libtool >= 2:2
 BuildRequires:	libuuid-devel
 BuildRequires:	linux-libc-headers >= 7:4.15
+BuildRequires:	meson
+BuildRequires:	ninja >= 1.5
 BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 1.673
 %{?with_systemd:BuildRequires:	systemd-devel}
@@ -246,34 +244,20 @@ Statyczna biblioteka daxctl.
 
 %prep
 %setup -q
-%patch0 -p1
-
-echo '%{version}' >version
 
 %build
-./git-version-gen
-%{__libtoolize}
-%{__aclocal} -I m4
-%{__autoconf}
-%{__autoheader}
-%{__automake}
-%configure \
-	--disable-asciidoctor \
-	--disable-silent-rules \
-	%{?with_static_libs:--enable-static} \
-	--with-bash=%{bash_compdir} \
-	--with-udevrulesdir=/lib/udev/rules.d \
-	%{!?with_systemd:--without-systemd}
-%{__make}
+%meson build \
+	%{!?with_static_libs:--default-library=shared} \
+	-Dasciidoctor=disabled \
+	-Dbashcompletiondir=%{bash_compdir} \
+	%{!?with_systemd:-Dsystemd=disabled}
+
+%ninja_build -C build
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
-%{__make} install \
-	DESTDIR=$RPM_BUILD_ROOT
-
-# obsoleted by pkg-config
-%{__rm} $RPM_BUILD_ROOT%{_libdir}/lib*.la
+%ninja_install -C build
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -370,7 +354,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n daxctl-libs
 %defattr(644,root,root,755)
-%doc README.md LICENSES/other/{CC0-1.0,MIT}
+%doc COPYING README.md LICENSES/other/{CC0-1.0,MIT}
 %attr(755,root,root) %{_libdir}/libdaxctl.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libdaxctl.so.1
 
