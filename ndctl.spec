@@ -1,18 +1,19 @@
 #
 # Conditional build:
+%bcond_without	libtracefs	# libtracefs support
 %bcond_without	static_libs	# static libraries
-%bcond_without	systemd		# systemd
+%bcond_without	systemd		# systemd services
 #
 Summary:	Manage "libnvdimm" subsystem devices (Non-volatile Memory)
 Summary(pl.UTF-8):	Zarządzanie urządzeniami podsystemu "libnvdimm" (pamięci nieulotnej)
 Name:		ndctl
-Version:	73
+Version:	78
 Release:	1
 License:	LGPL v2.1+ (libraries), GPL v2+ with CC0 and MIT parts (utilities)
 Group:		Applications/System
 #Source0Download: https://github.com/pmem/ndctl/releases
 Source0:	https://github.com/pmem/ndctl/archive/v%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	0c9f6f8c0bcc29ed7fcae3b1df7f61d6
+# Source0-md5:	e9508933924acacb006e1f4003c47bbc
 URL:		https://pmem.io/ndctl/
 # or asciidoctor instead of asciidoc+xmlto
 BuildRequires:	asciidoc
@@ -21,6 +22,10 @@ BuildRequires:	iniparser-devel
 BuildRequires:	json-c-devel
 BuildRequires:	keyutils-devel
 BuildRequires:	kmod-devel
+%if %{with libtracefs}
+BuildRequires:	libtraceevent-devel
+BuildRequires:	libtracefs-devel >= 1.2.0
+%endif
 BuildRequires:	libuuid-devel
 BuildRequires:	linux-libc-headers >= 7:4.15
 BuildRequires:	meson
@@ -106,6 +111,7 @@ Summary(pl.UTF-8):	Zarządzanie urządzeniami CXL
 License:	GPL v2+ with CC0 and MIT parts (utilities)
 Group:		Applications/System
 Requires:	cxl-libs = %{version}-%{release}
+Requires:	libtracefs-devel >= 1.2.0
 
 %description -n cxl
 The cxl utility provices enumeration and provisioning commands for
@@ -250,6 +256,7 @@ Statyczna biblioteka daxctl.
 	%{!?with_static_libs:--default-library=shared} \
 	-Dasciidoctor=disabled \
 	-Dbashcompletiondir=%{bash_compdir} \
+	%{!?with_libtracefs:-Dlibtracefs=disabled} \
 	%{!?with_systemd:-Dsystemd=disabled}
 
 %ninja_build -C build
@@ -310,6 +317,9 @@ rm -rf $RPM_BUILD_ROOT
 %files -n cxl
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_bindir}/cxl
+%if %{with systemd}
+%{systemdunitdir}/cxl-monitor.service
+%endif
 %{_mandir}/man1/cxl.1*
 %{_mandir}/man1/cxl-*.1*
 
@@ -338,6 +348,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n daxctl
 %defattr(644,root,root,755)
+%doc daxctl/daxctl.example.conf
 %attr(755,root,root) %{_bindir}/daxctl
 %dir %{_sysconfdir}/daxctl.conf.d
 %{_datadir}/daxctl
