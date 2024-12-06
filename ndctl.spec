@@ -352,8 +352,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/daxctl
 %dir %{_sysconfdir}/daxctl.conf.d
 %{_datadir}/daxctl
-/lib/udev/rules.d/90-daxctl-device.rules
 %if %{with systemd}
+/lib/udev/rules.d/90-daxctl-device.rules
 %{systemdunitdir}/daxdev-reconfigure@.service
 %endif
 %{_mandir}/man1/daxctl.1*
