@@ -7,13 +7,13 @@
 Summary:	Manage "libnvdimm" subsystem devices (Non-volatile Memory)
 Summary(pl.UTF-8):	Zarządzanie urządzeniami podsystemu "libnvdimm" (pamięci nieulotnej)
 Name:		ndctl
-Version:	79
+Version:	81
 Release:	1
 License:	LGPL v2.1+ (libraries), GPL v2+ with CC0 and MIT parts (utilities)
 Group:		Applications/System
 #Source0Download: https://github.com/pmem/ndctl/releases
 Source0:	https://github.com/pmem/ndctl/archive/v%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	bb2d9f612112b6496117551dc4e3d654
+# Source0-md5:	818e36a322ba77c62e48c1e400c498f8
 URL:		https://pmem.io/ndctl/
 # or asciidoctor instead of asciidoc+xmlto
 BuildRequires:	asciidoc
@@ -31,7 +31,7 @@ BuildRequires:	linux-libc-headers >= 7:4.15
 BuildRequires:	meson
 BuildRequires:	ninja >= 1.5
 BuildRequires:	pkgconfig
-BuildRequires:	rpmbuild(macros) >= 1.673
+BuildRequires:	rpmbuild(macros) >= 2.042
 %{?with_systemd:BuildRequires:	systemd-devel}
 BuildRequires:	udev-devel
 BuildRequires:	xmlto
@@ -252,19 +252,19 @@ Statyczna biblioteka daxctl.
 %setup -q
 
 %build
-%meson build \
+%meson \
 	%{!?with_static_libs:--default-library=shared} \
 	-Dasciidoctor=disabled \
 	-Dbashcompletiondir=%{bash_compdir} \
 	%{!?with_libtracefs:-Dlibtracefs=disabled} \
 	%{!?with_systemd:-Dsystemd=disabled}
 
-%ninja_build -C build
+%meson_build
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
-%ninja_install -C build
+%meson_install
 
 %clean
 rm -rf $RPM_BUILD_ROOT
