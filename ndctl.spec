@@ -7,16 +7,17 @@
 Summary:	Manage "libnvdimm" subsystem devices (Non-volatile Memory)
 Summary(pl.UTF-8):	Zarządzanie urządzeniami podsystemu "libnvdimm" (pamięci nieulotnej)
 Name:		ndctl
-Version:	81
+Version:	84
 Release:	1
 License:	LGPL v2.1+ (libraries), GPL v2+ with CC0 and MIT parts (utilities)
 Group:		Applications/System
 #Source0Download: https://github.com/pmem/ndctl/releases
 Source0:	https://github.com/pmem/ndctl/archive/v%{version}/%{name}-%{version}.tar.gz
-# Source0-md5:	818e36a322ba77c62e48c1e400c498f8
+# Source0-md5:	a397efde4f8a02a3a13eea8e1149257d
 URL:		https://pmem.io/ndctl/
 # or asciidoctor instead of asciidoc+xmlto
 BuildRequires:	asciidoc
+BuildRequires:	gcc >= 5:3.2
 BuildRequires:	glibc-devel >= 6:2.28
 BuildRequires:	iniparser-devel
 BuildRequires:	json-c-devel
@@ -28,7 +29,7 @@ BuildRequires:	libtracefs-devel >= 1.2.0
 %endif
 BuildRequires:	libuuid-devel
 BuildRequires:	linux-libc-headers >= 7:4.15
-BuildRequires:	meson
+BuildRequires:	meson >= 0.56.0
 BuildRequires:	ninja >= 1.5
 BuildRequires:	pkgconfig
 BuildRequires:	rpmbuild(macros) >= 2.042
@@ -299,11 +300,11 @@ rm -rf $RPM_BUILD_ROOT
 
 %files libs
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libndctl.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libndctl.so.6
+%{_libdir}/libndctl.so.*.*.*
+%ghost %{_libdir}/libndctl.so.6
 
 %files devel
-%attr(755,root,root) %{_libdir}/libndctl.so
+%{_libdir}/libndctl.so
 %defattr(644,root,root,755)
 %{_includedir}/ndctl
 %{_pkgconfigdir}/libndctl.pc
@@ -329,12 +330,12 @@ rm -rf $RPM_BUILD_ROOT
 
 %files -n cxl-libs
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libcxl.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libcxl.so.1
+%{_libdir}/libcxl.so.*.*.*
+%ghost %{_libdir}/libcxl.so.1
 
 %files -n cxl-devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libcxl.so
+%{_libdir}/libcxl.so
 %{_includedir}/cxl
 %{_pkgconfigdir}/libcxl.pc
 %{_mandir}/man3/cxl_new.3*
@@ -366,12 +367,12 @@ rm -rf $RPM_BUILD_ROOT
 %files -n daxctl-libs
 %defattr(644,root,root,755)
 %doc COPYING README.md LICENSES/other/{CC0-1.0,MIT}
-%attr(755,root,root) %{_libdir}/libdaxctl.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libdaxctl.so.1
+%{_libdir}/libdaxctl.so.*.*.*
+%ghost %{_libdir}/libdaxctl.so.1
 
 %files -n daxctl-devel
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libdaxctl.so
+%{_libdir}/libdaxctl.so
 %{_includedir}/daxctl
 %{_pkgconfigdir}/libdaxctl.pc
 
